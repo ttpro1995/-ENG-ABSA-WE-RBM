@@ -2,12 +2,15 @@
 
 from bs4 import BeautifulSoup
 from labeling import Write2file
+DATASET_FOLDER_DIR = '../dataset'
 
-def make_raw_sentiment_file (data,pos_neg_labels):
-    file_raw_data = open('full_sentiment_data_raw.txt','w')
-    file_raw_labels = open('full_sentiment_labels_raw.txt','w')
+def make_raw_sentiment_file (data,pos_neg_labels, folder_dir):
+    file_raw_data = open(folder_dir+'/full_sentiment_data_raw.txt','w')
+    file_raw_labels = open(folder_dir+'/full_sentiment_labels_raw.txt','w')
     for i in range(len(data)):
-        file_raw_data.write(data[i] + '\n')
+        sentence = data[i].rstrip() # remove all \n on right
+        sentence = sentence.lstrip() # remove all \n on left
+        file_raw_data.write(sentence + '\n')
         file_raw_labels.write(str(pos_neg_labels[i])  + '\n')
 
 
@@ -117,7 +120,8 @@ def parse_raw_corpus_to_xml(filename, no_neutral = False):
 
 
     print ('start writing to file')
-    Write2file(all_labels,all_review_lines,index)
+
+    Write2file(all_labels,all_review_lines,index, DATASET_FOLDER_DIR)
 
 def convert_to_lower_case(filename):
     """
@@ -189,9 +193,14 @@ def load_data_sentiment (filename):
     return data, labels, posnegs
 
 if __name__ == "__main__":
+    # convert Classified Corpus to lower case first
+    # convert_to_lower_case('../dataset/Classified_Corpus.xml')
+
+    # parse corpus into xml
+    # parse_raw_corpus_to_xml('../dataset/Classified_Corpus_lowercase.xml')
+
+    # run on short corpus
+    convert_to_lower_case('../dataset/short_corpus')
     parse_raw_corpus_to_xml('../dataset/short_corpuslower')
-    # convert_to_lower_case('./dataset/short_corpus')
-    # parse_raw_corpus_to_xml('./dataset/short_corpuslower')
-    #Write2file(['F1','A2','F2'],["meow f1", "woof a2","meow f2"],113)
-    #data, labels, posnegs = load_data_sentiment('./dataset/Classified_Corpus.xml')
-    #make_raw_sentiment_file(data,posnegs)
+    data, labels, posnegs = load_data_sentiment('../dataset/Output_FSA.txt')
+    make_raw_sentiment_file(data,posnegs, DATASET_FOLDER_DIR)

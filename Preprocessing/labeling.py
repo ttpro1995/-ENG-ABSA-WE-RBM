@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 
 
-def Write2file(labels, reviews,index):
+def Write2file(labels, reviews,index, folder_dir ,root_tag = True):
     """
     Write output.txt that suit for the code
     :param labels:  list F S A 1 2 3neutral
     :param reviews: list
     :param index: one number (it will increment)
+    :param root_tag: True will add opening and closing root tag <sentences> .... </sentences>
     :return:
     """
-    file_output = open("./Output.txt",'a')
-    file_output_2 = open("./Output_FSA.txt",'a')
+    file_output = open(folder_dir+"/Output.txt",'a')
+    file_output_2 = open(folder_dir+"/Output_FSA.txt",'a')
+    # write opening root tag <sentences>
+    if (root_tag):
+        file_output.write('<sentences>\n')
+        file_output_2.write('<sentences>\n')
     for i in range(len(labels)):
         file_output.write("\t<sentence id=\"" + str(index) + "\">"+ "\n")
         file_output.write("\t\t<text>" + reviews[i] + "</text>" + "\n")
@@ -75,3 +80,8 @@ def Write2file(labels, reviews,index):
         index = index+1
     file_index = open("Index.txt",'w')
     file_index.write(str(index))
+
+    # write opening closing tag <sentences>
+    if (root_tag):
+        file_output.write('\n</sentences>')
+        file_output_2.write('\n</sentences>')
