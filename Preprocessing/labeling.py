@@ -4,13 +4,13 @@
 def Write2file(labels, reviews,index):
     """
     Write output.txt that suit for the code
-    :param labels:  list
+    :param labels:  list F S A 1 2 3neutral
     :param reviews: list
     :param index: one number (it will increment)
     :return:
     """
-    file_output = open("Output.txt",'a')
-    file_output_2 = open("Output_FSA.txt",'a')
+    file_output = open("./Output.txt",'a')
+    file_output_2 = open("./Output_FSA.txt",'a')
     for i in range(len(labels)):
         file_output.write("\t<sentence id=\"" + str(index) + "\">"+ "\n")
         file_output.write("\t\t<text>" + reviews[i] + "</text>" + "\n")
