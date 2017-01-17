@@ -8,6 +8,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from svmutil import *
+from sklearn.model_selection import train_test_split
 import CONSTANT
 # Hàm load dữ liệu
 def LoadData (filename1, filename2):
@@ -170,16 +171,20 @@ def Convert_word2Idx_NoPOStagged_predict (nopostagged_data):
 
 if __name__ == "__main__":
     # Define
-    number_in_training_set = 150
+    data_size = 1000
 
     print "Loading Data..."
     # Load dữ liệu
     data, labels = LoadData(CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.full_aspect_data_raw,
                             CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.full_aspect_labels_raw)
 
+    data = data[:data_size]
+    labels = labels[:data_size]
+    X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.25, random_state=42)
+
     # training_set =  data[:40] + data[38694:38734] + data[52876:52916]
-    training_set =  data[:number_in_training_set]
-    training_labels =  labels[:number_in_training_set]
+    training_set =  X_train
+    training_labels =  y_train
 
     # Make dictionary
     print "Making Dictionary..."
@@ -199,11 +204,11 @@ if __name__ == "__main__":
 
     # Kiểm thử, xuất file predict label, cho biết accuracy
     model = svm_load_model('SVM_aspect.model')
-    test_set = Convert_word2Idx_NoPOStagged_predict(data[number_in_training_set:])
-    test_labels = labels[number_in_training_set:]
+    test_set = Convert_word2Idx_NoPOStagged_predict(X_test)
+    test_labels = y_test
     # Predict
     p_label, p_acc, p_val = svm_predict(test_labels, test_set, model, '-b 1')
-    ACC, MSE, SCC = evaluations(labels[number_in_training_set:], p_label)
+    ACC, MSE, SCC = evaluations(test_labels, p_label)
 
     # Ghi file predict labels
     file = open('svm_aspect_predict.txt','w')

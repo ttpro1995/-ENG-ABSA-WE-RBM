@@ -5,6 +5,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from svmutil import *
+from sklearn.model_selection import train_test_split
 import CONSTANT
 # Hàm load dữ liệu
 
@@ -256,12 +257,18 @@ if __name__ == "__main__":
                             CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.full_sentiment_labels_raw)
     # data, labels = LoadData('svm_data.txt', 'full_sentiment_labels.txt')
 
-    data_size = 150
-    train = data[:data_size]
-    train_labels = labels[:data_size]
+    data_size = 1500
+    data = data[:data_size]
+    labels = labels[:data_size]
+    X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.25, random_state=42)
+
+    training_set = X_train
+    train_labels = y_train
+
+
     # Make dictionary
     print "Making Dictionary..."
-    training_set = Convert_word2Idx_NoPOStagged (train)
+    training_set = Convert_word2Idx_NoPOStagged (X_train)
     # Tạo model
     print "Making a model"
     prob  = svm_problem(train_labels, training_set)
@@ -276,11 +283,11 @@ if __name__ == "__main__":
 
     # Kiểm thử, xuất file predict label, cho biết accuracy
     model = svm_load_model('SVM_sentiment.model')
-    test_set = Convert_word2Idx_NoPOStagged_predict(data)
-    test_labels = labels
+    test_set = Convert_word2Idx_NoPOStagged_predict(X_test)
+    test_labels = y_test
     # Predict
     p_label, p_acc, p_val = svm_predict(test_labels, test_set, model, '-b 1')
-    ACC, MSE, SCC = evaluations(labels, p_label)
+    ACC, MSE, SCC = evaluations(test_labels, p_label)
 
     file = open('result_SVM_sentiment.txt','w')
     file.write("Accuracy = " + str(ACC))
