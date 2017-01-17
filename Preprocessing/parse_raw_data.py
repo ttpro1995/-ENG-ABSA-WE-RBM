@@ -5,7 +5,18 @@ from labeling import Write2file
 from os.path import splitext
 import CONSTANT
 
+
 def make_raw_sentiment_file (data, pos_neg_labels, folder_dir):
+    """
+    Make 'full_sentiment_labels_raw.txt' and 'full_sentiment_data_raw.txt'
+    :param data: sentences
+    :param pos_neg_labels:
+            Positive 1
+            Negative 0
+            Neutral 2
+    :param folder_dir:
+    :return:
+    """
     file_raw_data = open(folder_dir+ '/'+CONSTANT.full_sentiment_data_raw,'w')
     file_raw_sentiment_labels = open(folder_dir+'/'+ CONSTANT.full_sentiment_labels_raw,'w')
     for i in range(len(data)):
@@ -14,7 +25,19 @@ def make_raw_sentiment_file (data, pos_neg_labels, folder_dir):
         file_raw_data.write(sentence + '\n')
         file_raw_sentiment_labels.write(str(pos_neg_labels[i])  + '\n')
 
+
 def make_raw_aspect_file (data, aspect_labels, folder_dir):
+    """
+    Make 'full_aspect_data_raw.txt' and 'full_aspect_labels_raw.txt'
+    :param data:
+    :param aspect_labels:
+    Food 1
+    Staff 3
+    Ambience 5
+
+    :param folder_dir:
+    :return:
+    """
     file_raw_data = open(folder_dir+ '/'+CONSTANT.full_aspect_data_raw,'w')
     file_raw_aspect_labels = open(folder_dir+'/'+ CONSTANT.full_aspect_labels_raw,'w')
     for i in range(len(data)):
@@ -200,6 +223,7 @@ def load_data_sentiment_aspect (filename):
     all_posneg_labels = [0]*len(posneg_labels)
     for i in range(len(all_sentences)):
         if ('negative' in posneg_labels[i] and 'positive' in posneg_labels[i]):
+            # neutral
             all_posneg_labels[i] = 2
         elif ('positive' in posneg_labels[i]):
             all_posneg_labels[i] = 0
