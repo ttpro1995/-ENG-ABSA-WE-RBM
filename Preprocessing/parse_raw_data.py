@@ -30,7 +30,7 @@ def strip_tag(s):
     return s[s.index(start)+2:(len(s)-len(start))]
 
 
-def parse_raw_corpus_to_xml(filename, no_neutral = False):
+def parse_raw_corpus_to_xml(filename, neutral = False, conflict = False):
     """
     Read Classified_Corpus.xml (all in lowercase) and parse to suittable xml
     :param filename:
@@ -58,6 +58,7 @@ def parse_raw_corpus_to_xml(filename, no_neutral = False):
             POSITIVE = 0
             NEGATIVE = 0
             NEUTRAL = 0
+            CONFLICT = 0
 
             FOOD = 0
             STAFF = 0
@@ -77,23 +78,26 @@ def parse_raw_corpus_to_xml(filename, no_neutral = False):
                 NEGATIVE = 1
             if ('<neutral>' in str(line)):
                 NEUTRAL = 1
+            if ('<conflict>' in str(line)):
+                CONFLICT = 1
 
-            if (POSITIVE+NEGATIVE+NEUTRAL == 0):
+            if (POSITIVE+NEGATIVE+NEUTRAL+CONFLICT != 1):
                 continue
 
             if (FOOD + STAFF + AMBIENCE != 1):
                 "we only use sentences with a single label for evaluation to avoid ambiguity"
                 continue
 
-            if (no_neutral):
+            #if (POSITIVE+NEGATIVE == 2):
+            #    NEUTRAL = 1
+
+            if (not neutral):
                 if (NEUTRAL):
                     "We will not use neutral"
                     continue
-                if (POSITIVE+NEGATIVE == 2):
-                    "It is neutral, we do not use"
+            if (not conflict):
+                if (CONFLICT):
                     continue
-            elif (not no_neutral and (POSITIVE+NEGATIVE)==2):
-                NEUTRAL = 1
 
             label_aspect = None
             label_sent = None
@@ -209,7 +213,7 @@ if __name__ == "__main__":
     make_raw_sentiment_file(data,posnegs, CONSTANT.DATASET_FOLDER_DIR)
 
     # run on short corpus
-    #convert_to_lower_case('../dataset/short_corpus')
+    # convert_to_lower_case('../dataset/short_corpus')
     #parse_raw_corpus_to_xml('../dataset/short_corpus_lower')
     #data, labels, posnegs = load_data_sentiment('../dataset/Output_FSA.txt')
     #make_raw_sentiment_file(data,posnegs, DATASET_FOLDER_DIR)
