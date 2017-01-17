@@ -16,55 +16,7 @@ def LoadData (filename1, filename2):
         labels[i] = int(labels[i])
     return data, labels
 
-def LoadData_sentiment (filename):
-    file = open(filename,'r')
-    data= file.read()
-    soup = BeautifulSoup(data, 'xml')
-    all_sentences = soup.find_all('sentence')
-    all_aspects = []
-    all_labels = [''] * len(all_sentences)
-    posneg_labels = []
 
-    # Tìm aspect cho các câu đó
-    for i in range(len(all_sentences)):
-        if ('<Opinions>' in str(all_sentences[i])):
-            Opinions = all_sentences[i].Opinions.find_all('Opinion')
-            aspects = ''
-            sentiments = ''
-            for j in range(len(Opinions)):
-                aspect = Opinions[j]['category']
-                sentiment = Opinions[j]['polarity']
-                aspects += ' ' + aspect
-                sentiments += ' ' + sentiment
-            all_aspects.append(aspects)
-            posneg_labels.append(sentiments)
-        else:
-            all_aspects.append('Others')
-            posneg_labels.append('Others')
-    # Gán -1 cho tất cả vì ko cần nhãn aspect
-    for i in range(len(all_sentences)):
-        all_labels[i] += ' -1'
-
-    all_posneg_labels = [0]*len(posneg_labels)
-    for i in range(len(all_sentences)):
-        if ('negative' in posneg_labels[i] and 'positive' in posneg_labels[i]):
-            all_posneg_labels[i] = 2
-        elif ('positive' in posneg_labels[i]):
-            all_posneg_labels[i] = 0
-        elif ('negative' in posneg_labels[i]):
-            all_posneg_labels[i] = 1
-
-    # Tìm ra những câu chỉ nói về food staff hoặc ambience
-    data = []
-    labels = []
-    posnegs = []
-    for i in range(len(all_sentences)):
-        text = all_sentences[i].text
-        data.append(text)
-        labels.append(-1)
-        posnegs.append(all_posneg_labels[i])
-
-    return data, labels, posnegs
 
 
 # Hàm chuẩn hóa nhãn từ string thành int. Check cụm từ trong labels, nếu có cụm từ đó thì tạo nhãn
@@ -237,12 +189,7 @@ def Convert_word2Idx_NoPOStagged_predict (nopostagged_data):
         x.append(sort_sent_dict)
     return x
 
-def Make_raw_sentiment_file (data,pos_neg_labels):
-    file_raw_data = open('full_sentiment_data_raw.txt','w')
-    file_raw_labels = open('full_sentiment_labels_raw.txt','w')
-    for i in range(len(data)):
-        file_raw_data.write(data[i] + '\n')
-        file_raw_labels.write(str(pos_neg_labels[i])  + '\n')
+
 if __name__ == "__main__":
 
 

@@ -2,11 +2,12 @@
 
 from bs4 import BeautifulSoup
 from labeling import Write2file
-DATASET_FOLDER_DIR = '../dataset'
+from os.path import splitext
+import CONSTANT
 
 def make_raw_sentiment_file (data,pos_neg_labels, folder_dir):
-    file_raw_data = open(folder_dir+'/full_sentiment_data_raw.txt','w')
-    file_raw_labels = open(folder_dir+'/full_sentiment_labels_raw.txt','w')
+    file_raw_data = open(folder_dir+ CONSTANT.full_sentiment_data_raw,'w')
+    file_raw_labels = open(folder_dir+'/'+ CONSTANT.full_sentiment_labels_raw,'w')
     for i in range(len(data)):
         sentence = data[i].rstrip() # remove all \n on right
         sentence = sentence.lstrip() # remove all \n on left
@@ -121,7 +122,7 @@ def parse_raw_corpus_to_xml(filename, no_neutral = False):
 
     print ('start writing to file')
 
-    Write2file(all_labels,all_review_lines,index, DATASET_FOLDER_DIR)
+    Write2file(all_labels,all_review_lines,index, CONSTANT.DATASET_FOLDER_DIR)
 
 def convert_to_lower_case(filename):
     """
@@ -129,8 +130,9 @@ def convert_to_lower_case(filename):
     :param filename:
     :return:
     """
-    file_output = open(filename+"lower", 'w')
-    with open(filename, 'r') as fileinput:
+    filename, file_extension = splitext(filename)
+    file_output = open(filename+"_lower"+file_extension, 'w')
+    with open(filename+file_extension, 'r') as fileinput:
         for line in fileinput:
             line = line.lower()
             file_output.write(line)
@@ -199,8 +201,15 @@ if __name__ == "__main__":
     # parse corpus into xml
     # parse_raw_corpus_to_xml('../dataset/Classified_Corpus_lowercase.xml')
 
-    # run on short corpus
-    convert_to_lower_case('../dataset/short_corpus')
-    parse_raw_corpus_to_xml('../dataset/short_corpuslower')
+
+    # run on real corpus
+    convert_to_lower_case(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus)
+    parse_raw_corpus_to_xml(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus_lower)
     data, labels, posnegs = load_data_sentiment('../dataset/Output_FSA.txt')
-    make_raw_sentiment_file(data,posnegs, DATASET_FOLDER_DIR)
+    make_raw_sentiment_file(data,posnegs, CONSTANT.DATASET_FOLDER_DIR)
+
+    # run on short corpus
+    #convert_to_lower_case('../dataset/short_corpus')
+    #parse_raw_corpus_to_xml('../dataset/short_corpus_lower')
+    #data, labels, posnegs = load_data_sentiment('../dataset/Output_FSA.txt')
+    #make_raw_sentiment_file(data,posnegs, DATASET_FOLDER_DIR)
