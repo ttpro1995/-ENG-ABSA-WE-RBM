@@ -5,15 +5,23 @@ from labeling import Write2file
 from os.path import splitext
 import CONSTANT
 
-def make_raw_sentiment_file (data,pos_neg_labels, folder_dir):
+def make_raw_sentiment_file (data, pos_neg_labels, folder_dir):
     file_raw_data = open(folder_dir+ '/'+CONSTANT.full_sentiment_data_raw,'w')
-    file_raw_labels = open(folder_dir+'/'+ CONSTANT.full_sentiment_labels_raw,'w')
+    file_raw_sentiment_labels = open(folder_dir+'/'+ CONSTANT.full_sentiment_labels_raw,'w')
     for i in range(len(data)):
         sentence = data[i].rstrip() # remove all \n on right
         sentence = sentence.lstrip() # remove all \n on left
         file_raw_data.write(sentence + '\n')
-        file_raw_labels.write(str(pos_neg_labels[i])  + '\n')
+        file_raw_sentiment_labels.write(str(pos_neg_labels[i])  + '\n')
 
+def make_raw_aspect_file (data, aspect_labels, folder_dir):
+    file_raw_data = open(folder_dir+ '/'+CONSTANT.full_aspect_data_raw,'w')
+    file_raw_aspect_labels = open(folder_dir+'/'+ CONSTANT.full_aspect_labels_raw,'w')
+    for i in range(len(data)):
+        sentence = data[i].rstrip() # remove all \n on right
+        sentence = sentence.lstrip() # remove all \n on left
+        file_raw_data.write(sentence + '\n')
+        file_raw_aspect_labels.write(str(aspect_labels[i])  + '\n')
 
 def strip_between(s, start = '>', end = '</'):
     """
@@ -66,10 +74,9 @@ def parse_raw_corpus_to_xml(filename, neutral = False, conflict = False):
 
             if ('<food>' in str(line)):
                 FOOD = 1
-
             if ('<staff>' in str(line)):
                 STAFF = 1
-            if ('<Ambience>' in str(line)):
+            if ('<ambience>' in str(line)):
                 AMBIENCE = 1
 
             if ('<positive>' in str(line)):
@@ -142,12 +149,20 @@ def convert_to_lower_case(filename):
             file_output.write(line)
 
 
-def load_data_sentiment (filename):
+def load_data_sentiment_aspect (filename):
     """
     This use same format with Vietnamese dataset
 
     :param filename:
     :return:
+    data: sentence
+    labels:
+        Food = 1
+        Staff = 3
+        AMBIENCE = 5
+    posnegs:
+        positive = 0
+        negative = 1
     """
     file = open(filename,'r')
     data = file.read()
@@ -175,7 +190,12 @@ def load_data_sentiment (filename):
             posneg_labels.append('Others')
     # Gán -1 cho tất cả vì ko cần nhãn aspect
     for i in range(len(all_sentences)):
-        all_labels[i] += ' -1'
+        if ('FOOD' in all_aspects[i]):
+            all_labels[i] += ' 1'
+        if ('AMBIENCE' in all_aspects[i]):
+            all_labels[i] += ' 3'
+        if ('STAFF' in all_aspects[i]):
+            all_labels[i] += ' 5'
 
     all_posneg_labels = [0]*len(posneg_labels)
     for i in range(len(all_sentences)):
@@ -186,15 +206,12 @@ def load_data_sentiment (filename):
         elif ('negative' in posneg_labels[i]):
             all_posneg_labels[i] = 1
 
-    # Tìm ra những câu chỉ nói về food staff hoặc ambience
     data = []
-    labels = []
-    posnegs = []
+    labels = all_labels
+    posnegs = all_posneg_labels
     for i in range(len(all_sentences)):
         text = all_sentences[i].text
         data.append(text)
-        labels.append(-1)
-        posnegs.append(all_posneg_labels[i])
 
     return data, labels, posnegs
 
@@ -209,9 +226,9 @@ if __name__ == "__main__":
     # run on real corpus
     convert_to_lower_case(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus)
     parse_raw_corpus_to_xml(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus_lower)
-    data, labels, posnegs = load_data_sentiment('../dataset/Output_FSA.txt')
-    make_raw_sentiment_file(data,posnegs, CONSTANT.DATASET_FOLDER_DIR)
-
+    data, aspect_labels, posnegs = load_data_sentiment_aspect('../dataset/Output_FSA.txt')
+    make_raw_sentiment_file(data, posnegs, CONSTANT.DATASET_FOLDER_DIR)
+    make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)
     # run on short corpus
     # convert_to_lower_case('../dataset/short_corpus')
     #parse_raw_corpus_to_xml('../dataset/short_corpus_lower')

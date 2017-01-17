@@ -221,5 +221,5 @@ if __name__ == "__main__":
     p_label, p_acc, p_val = svm_predict(test_labels, test_set, model, '-b 1')
     ACC, MSE, SCC = evaluations(labels, p_label)
 
-    file = open('result_SVM_sentiment.txt','w')
+    file = open( 'result_SVM_sentiment.txt','w')
     file.write("Accuracy = " + str(ACC))

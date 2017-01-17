@@ -10,6 +10,19 @@ import CONSTANT
 
 # Hàm load dữ liệu
 def LoadData (filename1, filename2):
+    """
+    Label rule:
+    RESTAURANT = 0
+    FOOD = 1
+    DRINKS = 2
+    AMBIENCE = 3
+    PRICES = 4
+    SERVICE = 5
+    Others = 6
+    :param filename1: data file (each row is a sentence)
+    :param filename2: labels
+    :return:
+    """
     file_data = open(filename1,'r')
     file_labels = open(filename2,'r')
     data = file_data.read().splitlines()
