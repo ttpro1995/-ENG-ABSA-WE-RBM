@@ -6,7 +6,7 @@ from os.path import splitext
 import CONSTANT
 
 def make_raw_sentiment_file (data,pos_neg_labels, folder_dir):
-    file_raw_data = open(folder_dir+ CONSTANT.full_sentiment_data_raw,'w')
+    file_raw_data = open(folder_dir+ '/'+CONSTANT.full_sentiment_data_raw,'w')
     file_raw_labels = open(folder_dir+'/'+ CONSTANT.full_sentiment_labels_raw,'w')
     for i in range(len(data)):
         sentence = data[i].rstrip() # remove all \n on right
