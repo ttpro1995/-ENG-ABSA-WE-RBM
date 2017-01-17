@@ -15,6 +15,6 @@ from Preprocessing.parse_raw_data import make_raw_aspect_file, make_raw_sentimen
 import CONSTANT
 
 if __name__ == "__main__":
-    data, aspect_labels, posnegs = load_data_sentiment_aspect('../dataset/Output_FSA.txt')
+    data, aspect_labels, posnegs = load_data_sentiment_aspect(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Output_FSA)
     make_raw_sentiment_file(data, posnegs, CONSTANT.DATASET_FOLDER_DIR)
     make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)

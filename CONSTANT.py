@@ -9,4 +9,6 @@ full_sentiment_labels_raw = 'full_sentiment_labels_raw.txt'
 full_aspect_data_raw = 'full_aspect_data_raw.txt'
 full_aspect_labels_raw = 'full_aspect_labels_raw.txt'
 
+Output_FSA = 'Output_FSA.txt'
+
 result_SVM_sentiment = 'result_SVM_sentiment.txt'
