@@ -4,6 +4,7 @@
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 import CONSTANT
+
 # Hàm load dữ liệu
 def LoadData_sentiment (filename):
     file = open(filename,'r')
@@ -63,7 +64,7 @@ def ReadFileSentiWordNet(filename):
     full_data = file.read().splitlines()
     for i in range(len(full_data)): # Với mỗi dòng trong sentiwordnet
         columns = full_data[i].split('\t')
-
+        # Cột 0 và 1 bỏ đi, cột 2 và 3 lần lượt là pos và neg point, cột 4 phân ra các chữ, còn lại bỏ
         words = columns[4].split(' ')
         # Xét mỗi từ
         for i in range(len(words)):
@@ -108,10 +109,12 @@ def Accuracy_SentiWordNet (predict_labels,pos_neg_labels):
 if __name__ == "__main__":
     # Load dữ liệu cần test lên (data + label)
     print "Load data and labels"
-    data, labels, pos_neg_labels = LoadData_sentiment(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.full_sentiment_data_raw)
+    data, labels, pos_neg_labels = LoadData_sentiment(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Output_FSA)
 
-    # Chuẩn hóa dữ liệu
-
+    # Lấy dữ liệu test
+    data = data[150:]
+    labels = labels[150:]
+    pos_neg_labels = pos_neg_labels[150:]
 
     # Load file SentiWordNet lên
     print "Loading SentiWordNet"
