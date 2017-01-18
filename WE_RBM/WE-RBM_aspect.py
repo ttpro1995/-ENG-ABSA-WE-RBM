@@ -760,7 +760,7 @@ def Word2Vec_Predict_Suggestion_sentiment(test_vector,sentiment_size):
 
 
 # Hàm main
-def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in_training_set = 700,
+def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in_training_set = 150,
               batch_size=20,aspect_size = 100, sentiment_size = 100,
              n_chains=20, n_samples=10, output_folder='rbm_plots',
              n_hidden=500):
@@ -816,6 +816,7 @@ def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in
     # print "Word2Vec phrase..."
     # data_vector = Word2Vec(data, labels, pos_neg_labels, number_in_training_set,aspect_size, sentiment_size,w2v_model)
 
+    # Loading data
 
     temp_train_set = []
     with open('Aspect_train_set.TXT') as f:
@@ -836,6 +837,9 @@ def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in
     train_set_x = theano.shared(numpy.asarray(temp_train_set,dtype=theano.config.floatX),borrow=True)
     # train_set_y = theano.shared(numpy.asarray(data_vector_train,dtype=theano.config.floatX),borrow=True)
 
+    # print labels.count('1')
+    # print labels.count('5')
+    # print labels.count('3')
 
 
 
@@ -898,7 +902,7 @@ def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in
 
     plotting_time = 0.
     start_time = timeit.default_timer()
-
+    print "Training model..."
     # Bắt đầu chạy từng vòng lặp, training epochs mặc định là 15 vòng
     for epoch in xrange(training_epochs):
         # Xét từng tập train (tức từng tập mini batch)
@@ -910,7 +914,6 @@ def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in
 
             mean_cost += [train_rbm(batch_index)]
 
-        print 'Training epoch %d, cost is ' % epoch, numpy.mean(mean_cost)
 
     end_time = timeit.default_timer()
     # Kết thúc quá trình huấn luyện
@@ -926,7 +929,7 @@ def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in
 
     # Gợi ý phân lớp thông qua mô hình Word2Vec
     test_vectors = data_vector[number_in_training_set:]
-    test_vectors_after = test_vectors
+    test_vectors_after = Word2Vec_Predict_Suggestion(test_vectors,aspect_size)
 
     # Gán theano
     test_set_x = theano.shared(numpy.asarray(test_vectors_after,dtype=theano.config.floatX),borrow=True)
@@ -1058,8 +1061,7 @@ if __name__ == '__main__':
 
     print "Loading Data..."
     # Load dữ liệu
-    data, labels, pos_neg_labels = LoadData(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Output_FSA)
-
+    data, labels, pos_neg_labels = LoadData(CONSTANT.DATASET_FOLDER_DIR + '/' + CONSTANT.Output_FSA)
     print "Normalize Data..."
     # Chuẩn hóa reviews: lower case, tách từ, loại bỏ stopword, không cần bỏ thời gian để bỏ đi dấu chấm vì khi dùng thư viện
     # để tách từ nó sẽ tự động loại những cái đó ra
@@ -1087,13 +1089,16 @@ if __name__ == '__main__':
         file_label.write(str(labels[i]) + '\n')
 
     result = []
+    print "Loading Word 2 Vec already data"
+    # data_vector = LoadWord2VecData('full_data_aspect_only_word2vec.txt')
+    # labels = LoadWord2VecLabels('full_labels_aspect_only_word2vec.txt')
 
 
     for i in range(1):
         result.append(test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=3, number_in_training_set = 150,
-         batch_size=2000,aspect_size = 100, sentiment_size = 100,
+         batch_size=4000,aspect_size = 100, sentiment_size = 100,
          n_chains=20, n_samples=10, output_folder='rbm_plots',
-         n_hidden=500))
+         n_hidden=300))
     print result
 
     file_result = open("result_RBM_Word2Vec_sentiment.txt",'w')
