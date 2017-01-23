@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 from labeling import Write2file
+import re
 from os.path import splitext
 import CONSTANT
 
@@ -53,15 +54,21 @@ def strip_between(s, start = '>', end = '</'):
     :param end:
     :return:
     """
+    idx_start = s.index(start) + 1
+    idx_end = s.index(end)
     return s[s.index(start)+1:s.index(end)]
 
 def strip_tag(s):
     # substring not found
     # the food is a melding of moroccan comfort food and spanish tapas fare : tagines , stews and salads , with surprises like baby eggplants and olives where you might not expect them . 2>
-    print(s)
-    number = strip_between(s, '<','>') # get the number in tag
-    start = number+'>' # 2>
-    return s[s.index(start)+2:(len(s)-len(start))]
+    # print(s)
+    # number = strip_between(s, '<','>') # get the number in tag
+    # start = number+'>' # 2>
+    # return s[s.index(start)+2:(len(s)-len(start))]
+    pattern = "[a-zA-Z ]*"
+    result = re.findall(pattern, s)
+    str_result = "".join(result)
+    return str_result
 
 
 def parse_raw_corpus_to_xml(filename, neutral = False, conflict = False):
@@ -251,7 +258,7 @@ if __name__ == "__main__":
 
 
     # run on real corpus
-    # convert_to_lower_case(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus)
+    convert_to_lower_case(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus)
     parse_raw_corpus_to_xml(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus_lower)
     data, aspect_labels, posnegs = load_data_sentiment_aspect('../dataset/Output_FSA.txt')
     make_raw_sentiment_file(data, posnegs, CONSTANT.DATASET_FOLDER_DIR)
