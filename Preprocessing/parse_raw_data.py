@@ -5,7 +5,9 @@ from labeling import Write2file
 import re
 from os.path import splitext
 import CONSTANT
-
+import Word2Vec.Training as w2v
+import util.log_util
+import time
 
 def make_raw_sentiment_file (data, pos_neg_labels, folder_dir):
     """
@@ -256,13 +258,25 @@ if __name__ == "__main__":
     # parse corpus into xml
     # parse_raw_corpus_to_xml('../dataset/Classified_Corpus_lowercase.xml')
 
+    # make logger
+    logger = util.log_util.create_logger("parse_raw_data", print_console=True)
 
     # run on real corpus
+    start_time = time.time()
+    logger.info("converting Corpus to lower case")
     convert_to_lower_case(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus)
+    logger.info("parsing corpus to xml")
     parse_raw_corpus_to_xml(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus_lower)
     data, aspect_labels, posnegs = load_data_sentiment_aspect('../dataset/Output_FSA.txt')
+    logger.info("Writing raw sentiment dataset")
     make_raw_sentiment_file(data, posnegs, CONSTANT.DATASET_FOLDER_DIR)
+    logger.info("Writing raw aspect dataset")
     make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)
+    logger.info("training word2vec model")
+    w2v.training_w2v_model()
+    done_time = time.time()
+    logger.info("Done in %f" %(done_time-start_time))
+
     # run on short corpus
     # convert_to_lower_case('../dataset/short_corpus')
     #parse_raw_corpus_to_xml('../dataset/short_corpus_lower')

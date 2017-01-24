@@ -6,7 +6,7 @@ __author__ = 'Dai Nguyen'
 import gensim
 import CONSTANT
 
-if __name__ == "__main__":
+def training_w2v_model():
     # Load file
     print "Loading file..."
     # file_training = open('Training_word2vec_viet.TXT','r')
@@ -23,5 +23,6 @@ if __name__ == "__main__":
     print "Save model..."
     model.save(CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.Word2Vec_ENG_model)
 
-    # Thử nha
-    print model['food']
+
+if __name__ == "__main__":
+    training_w2v_model()
