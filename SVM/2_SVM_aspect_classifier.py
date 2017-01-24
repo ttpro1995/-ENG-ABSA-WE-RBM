@@ -194,6 +194,7 @@ if __name__ == "__main__":
         labels = labels[:data_size]
 
     X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.25, random_state=42)
+    print("Data: %d train sample, %d test sameple" %(len(y_train), len(y_test)))
 
     # training_set =  data[:40] + data[38694:38734] + data[52876:52916]
     training_set =  X_train
