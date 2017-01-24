@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import collections
 import numpy as np
 from bs4 import BeautifulSoup
@@ -7,6 +8,7 @@ from nltk.corpus import stopwords
 from svmutil import *
 from sklearn.model_selection import train_test_split
 import CONSTANT
+import util.log_util
 # Hàm load dữ liệu
 
 def LoadData (filename1, filename2):
@@ -193,7 +195,7 @@ def Convert_word2Idx_NoPOStagged (nopostagged_data):
         Data.append(word)
     # Eliminate duplicate elements
     Dict = list(set(Dict))
-    print "    - Complete Dictionary"
+    print("    - Complete Dictionary")
     #print Data
 
     #Save dictionary
@@ -253,6 +255,10 @@ def Make_raw_sentiment_file (data,pos_neg_labels):
 
 if __name__ == "__main__":
 
+    # create logger
+    logger = util.log_util.create_logger("SVM_aspect_classifier", print_console=True)
+    print = logger.info # redirect print function to logger.info
+
     data, labels = LoadData(CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.full_sentiment_data_raw,
                             CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.full_sentiment_labels_raw)
     # data, labels = LoadData('svm_data.txt', 'full_sentiment_labels.txt')
@@ -267,14 +273,14 @@ if __name__ == "__main__":
 
 
     # Make dictionary
-    print "Making Dictionary..."
+    print("Making Dictionary...")
     training_set = Convert_word2Idx_NoPOStagged (X_train)
     # Tạo model
-    print "Making a model"
+    print("Making a model")
     prob  = svm_problem(train_labels, training_set)
     param = svm_parameter('-t 0 -c 1 -b 1')
     # Train the model
-    print "Training..."
+    print("Training...")
     model = svm_train(prob, param)
     # Save the model
     svm_save_model('SVM_sentiment.model', model)
