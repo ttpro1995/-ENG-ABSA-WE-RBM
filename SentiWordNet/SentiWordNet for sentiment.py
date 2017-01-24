@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+from __future__ import print_function
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 import CONSTANT
+import util.log_util
 
 # Hàm load dữ liệu
 def LoadData_sentiment (filename):
@@ -80,7 +81,7 @@ def ReadFileSentiWordNet(filename):
 def Senti_predict (data,  senti_words, senti_pos, senti_neg):
     predict_labels = []
     for i in range(len(data)):
-        print "predict " + str(i) + "/" + str(len(data))
+        print("predict " + str(i) + "/" + str(len(data)))
         pos_point = 0
         neg_point = 0
         words = data[i].split()
@@ -107,28 +108,39 @@ def Accuracy_SentiWordNet (predict_labels,pos_neg_labels):
 
     return acc
 if __name__ == "__main__":
+
+    # create logger
+    logger = util.log_util.create_logger("SentiWordNet", print_console=True)
+    print = logger.info # redirect print function to logger.info
+
     # Load dữ liệu cần test lên (data + label)
-    print "Load data and labels"
+    print("Load data and labels")
     data, labels, pos_neg_labels = LoadData_sentiment(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Output_FSA)
 
-    # Lấy dữ liệu test
-    data = data[150:]
-    labels = labels[150:]
-    pos_neg_labels = pos_neg_labels[150:]
+    data_size = 100 # set = 0 to run will full dataset
+
+    if data_size>0:
+        data = data[:data_size]
+        labels = labels[:data_size]
+        pos_neg_labels = pos_neg_labels[data_size:]
+        print("Run with datasize = %d" % (data_size))
+    else:
+        print("Run will full dataset")
 
     # Load file SentiWordNet lên
-    print "Loading SentiWordNet"
+    print("Loading SentiWordNet")
     senti_words, senti_pos, senti_neg = ReadFileSentiWordNet(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.SentiWordNet)
 
 
     # Kiểm thử bằng SentiWordnet
-    print "Predicting..."
+    print("Predicting...")
     predict_labels = Senti_predict (data,  senti_words, senti_pos, senti_neg)
 
     # Tính accuracy và lưu file
-    print "Accuracy is: "
+    print("Accuracy is: ")
     acc = Accuracy_SentiWordNet (predict_labels,pos_neg_labels)
-    print acc
+    print(acc)
 
     file = open('result_sentiwordnet_sentiment.txt','w')
     file.write(str(acc))
+    print ("SentiWordNet acc %f" %(acc))

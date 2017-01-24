@@ -181,7 +181,7 @@ if __name__ == "__main__":
     print = logger.info # redirect print function to logger.info
 
     # Define
-    data_size = 1000 # set data_size = 0 to train on all data
+    data_size = 0 # set data_size = 0 to train on all data
 
 
     print ("Loading Data...")

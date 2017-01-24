@@ -256,17 +256,23 @@ def Make_raw_sentiment_file (data,pos_neg_labels):
 if __name__ == "__main__":
 
     # create logger
-    logger = util.log_util.create_logger("SVM_aspect_classifier", print_console=True)
+    logger = util.log_util.create_logger("SVM_sentiment_classifier", print_console=True)
     print = logger.info # redirect print function to logger.info
 
     data, labels = LoadData(CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.full_sentiment_data_raw,
                             CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.full_sentiment_labels_raw)
     # data, labels = LoadData('svm_data.txt', 'full_sentiment_labels.txt')
 
-    data_size = 1500
-    data = data[:data_size]
-    labels = labels[:data_size]
+    data_size = 0 # set datasize = 0 to run full dataset
+    if (data_size > 0):
+        data = data[:data_size]
+        labels = labels[:data_size]
+        print ("Run with datasize = %d" %(data_size))
+    else:
+        print ("Run will full dataset")
+
     X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.25, random_state=42)
+    print("Data: %d train sample, %d test sameple" % (len(y_train), len(y_test)))
 
     training_set = X_train
     train_labels = y_train
@@ -297,3 +303,4 @@ if __name__ == "__main__":
 
     file = open('result_SVM_sentiment.txt','w')
     file.write("Accuracy = " + str(ACC))
+    print ("Accuracy = " + str(ACC))
