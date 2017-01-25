@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+from __future__ import print_function
 import CONSTANT
 import timeit
 import os
@@ -14,6 +14,10 @@ import gensim
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 from theano.tensor.shared_randomstreams import RandomStreams
+from sklearn.model_selection import train_test_split
+import pickle
+import util.log_util
+import CONSTANT
 try:
     import PIL.Image as Image
 except ImportError:
@@ -373,7 +377,16 @@ def LoadWord2VecData(filename):
 
     return temp_train_set
 
-def Word2Vec_classifier_1_inscript (w2v_model, sentences, number_in_training_set):
+def Word2Vec_classifier_1_inscript (w2v_model, sentences, number_in_training_set, language = "eng"):
+    if language == "eng":
+        food = ['food']
+        staff = ['staff']
+        ambience = ['ambience']
+    elif language == 'viet':
+        food = ['thức','đồ','ăn','uống','món']
+        staff = ['nhân','viên','phục','vụ']
+        ambience = ['không','gian','trang','trí']
+
     return_vectors = []
     for i in range(len(sentences[number_in_training_set:])): # predict test
         i = i + number_in_training_set
@@ -383,9 +396,9 @@ def Word2Vec_classifier_1_inscript (w2v_model, sentences, number_in_training_set
             if words[j] in w2v_model.vocab: # Thử xem trong mô hình có từ đó không
                 words_in_vocabs.append(words[j])
         if (words_in_vocabs != []):
-            food_point = w2v_model.n_similarity(words_in_vocabs, ['thức','đồ','ăn','uống','món'])
-            staff_point = w2v_model.n_similarity(words_in_vocabs, ['nhân','viên','phục','vụ'])
-            ambience_point = w2v_model.n_similarity(words_in_vocabs, ['không','gian','trang','trí'])
+            food_point = w2v_model.n_similarity(words_in_vocabs, food)
+            staff_point = w2v_model.n_similarity(words_in_vocabs, staff)
+            ambience_point = w2v_model.n_similarity(words_in_vocabs, ambience)
             if (food_point >= staff_point and food_point >= ambience_point):
                 return_vectors.append(1)
             if (staff_point >= food_point  and staff_point >= ambience_point):
@@ -575,25 +588,25 @@ def Precision_Recall_F1 (a, aspect_size,test_labels):
             false_positive += 1
         elif ((food < staff or food < ambience)  and test_labels[i] == 1) :
             false_negative += 1
-    print "For Food Aspect ================="
-    print 'Precision is: '
+    print ("For Food Aspect =================")
+    print ('Precision is: ')
     pre = 0
     if (true_positive+false_positive != 0):
         pre = true_positive*100*1.0/(true_positive+false_positive)
-    print pre
+    print (pre)
 
-    print 'Recall is: '
+    print ('Recall is: ')
     recall = 0
     if ((true_positive+false_negative) != 0):
         recall = true_positive*100*1.0/(true_positive+false_negative)
-    print recall
+    print (recall)
 
-    print 'F1 is: '
+    print ('F1 is: ')
     f1 = 0
     if ((pre+recall) != 0):
         f1 = 2*pre*recall*1.0/(pre+recall)
-    print f1
-    print "================================="
+    print (f1)
+    print ("=================================")
     food_result = [pre,recall,f1]
     result.append(food_result)
 
@@ -612,25 +625,25 @@ def Precision_Recall_F1 (a, aspect_size,test_labels):
             false_positive += 1
         elif ((staff < food or staff < ambience)  and test_labels[i] == 5) :
             false_negative += 1
-    print "For Staff Aspect ================="
-    print 'Precision is: '
+    print ("For Staff Aspect =================")
+    print ('Precision is: ')
     pre = 0
     if (true_positive+false_positive != 0):
         pre = true_positive*100*1.0/(true_positive+false_positive)
-    print pre
+    print (pre)
 
-    print 'Recall is: '
+    print ('Recall is: ')
     recall = 0
     if ((true_positive+false_negative) != 0):
         recall = true_positive*100*1.0/(true_positive+false_negative)
-    print recall
+    print (recall)
 
-    print 'F1 is: '
+    print ('F1 is: ')
     f1 = 0
     if ((pre+recall) != 0):
         f1 = 2*pre*recall*1.0/(pre+recall)
-    print f1
-    print "================================="
+    print (f1)
+    print ("=================================")
     staff_result = [pre,recall,f1]
     result.append(staff_result)
 
@@ -649,30 +662,34 @@ def Precision_Recall_F1 (a, aspect_size,test_labels):
             false_positive += 1
         elif ((ambience < food or ambience < staff)  and test_labels[i] == 3) :
             false_negative += 1
-    print "For Ambience Aspect ================="
-    print 'Precision is: '
+    print ("For Ambience Aspect =================")
+    print ('Precision is: ')
     pre = 0
     if (true_positive+false_positive != 0):
         pre = true_positive*100*1.0/(true_positive+false_positive)
-    print pre
+    print (pre)
 
-    print 'Recall is: '
+    print ('Recall is: ')
     recall = 0
     if ((true_positive+false_negative) != 0):
         recall = true_positive*100*1.0/(true_positive+false_negative)
-    print recall
+    print (recall)
 
-    print 'F1 is: '
+    print ('F1 is: ')
     f1 = 0
     if ((pre+recall) != 0):
         f1 = 2*pre*recall*1.0/(pre+recall)
-    print f1
-    print "================================="
+    print (f1)
+    print ("=================================")
     am_result = [pre,recall,f1]
     result.append(am_result)
 
     return result
 def Word2Vec_aspect(data,labels,number_in_training_set, aspect_size,w2v_model):
+
+    if (number_in_training_set > 0):
+        data = data[:number_in_training_set]
+        labels = labels[:number_in_training_set]
 
     # Chuyển câu thành vector.........
     for i in range(len(data)):
@@ -680,7 +697,7 @@ def Word2Vec_aspect(data,labels,number_in_training_set, aspect_size,w2v_model):
         vector = numpy.zeros(300)
         words = data[i].split()
         for j in range(len(words)):
-            if words[j] in w2v_model.vocab: # Thử xem trong mô hình có từ đó không
+            if words[j] in w2v_model.wv.vocab: # Thử xem trong mô hình có từ đó không
                 vector = vector + w2v_model[words[j]] # Cộng hết tất cả vector của từ lại sẽ tạo thành vector của câu
         if (i==0):
             data_vector = vector
@@ -699,7 +716,7 @@ def Word2Vec_aspect(data,labels,number_in_training_set, aspect_size,w2v_model):
 
 
     # Vị trí dành cho aspect
-    for i in range(len(data[:number_in_training_set])):
+    for i in range(len(data)):
         if (labels[i] == 1): # FOOD
             for j in range(aspect_size):
                 return_data_vector_aspect[i][return_data_vector_aspect.shape[1]-2*aspect_size-1-j] = 1
@@ -817,23 +834,24 @@ def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in
     # data_vector = Word2Vec(data, labels, pos_neg_labels, number_in_training_set,aspect_size, sentiment_size,w2v_model)
 
 
-    temp_train_set = []
-    with open('Aspect_train_set.TXT') as f:
-        for line in f:  #Line is a string
+    #temp_train_set = []
+    #with open('Aspect_train_set.TXT') as f:
+    #    for line in f:  #Line is a string
             #split the string on whitespace, return a list of numbers
             # (as strings)
-            numbers_str = line.split()
+    #        numbers_str = line.split()
             #convert numbers to floats
-            numbers_float = [float(x) for x in numbers_str]  #map(float,numbers_str) works too
-            temp_train_set.append(numbers_float)
+    #        numbers_float = [float(x) for x in numbers_str]  #map(float,numbers_str) works too
+    #        temp_train_set.append(numbers_float)
+    labels = labels[:len(data_vector)]
 
-
+    X_train, X_test, y_train, y_test = train_test_split(data_vector, labels, test_size=0.25, random_state=42)
 
     # training_set =  data_vector[:7700] + data_vector[38694:46394] + data_vector[52876:60576]
     # training_labels =  labels[:7700] + labels[38694:46394] + labels[52876:60576]
-    print "Make shared train set"
+    print ("Make shared train set")
     # Training set x là số float, training set y là số integer
-    train_set_x = theano.shared(numpy.asarray(temp_train_set,dtype=theano.config.floatX),borrow=True)
+    train_set_x = theano.shared(numpy.asarray(X_train,dtype=theano.config.floatX),borrow=True)
     # train_set_y = theano.shared(numpy.asarray(data_vector_train,dtype=theano.config.floatX),borrow=True)
 
 
@@ -910,7 +928,7 @@ def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in
 
             mean_cost += [train_rbm(batch_index)]
 
-        print 'Training epoch %d, cost is ' % epoch, numpy.mean(mean_cost)
+        print ('Training epoch %d, cost is %s' % (epoch, numpy.mean(mean_cost)))
 
     end_time = timeit.default_timer()
     # Kết thúc quá trình huấn luyện
@@ -925,12 +943,14 @@ def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in
     ###########################################################
 
     # Gợi ý phân lớp thông qua mô hình Word2Vec
-    test_vectors = data_vector[number_in_training_set:]
+    #test_vectors = data_vector[number_in_training_set:]
+    test_vectors = X_test
     test_vectors_after = test_vectors
 
     # Gán theano
     test_set_x = theano.shared(numpy.asarray(test_vectors_after,dtype=theano.config.floatX),borrow=True)
-    test_labels = labels[number_in_training_set:]
+    #test_labels = labels[number_in_training_set:]
+    test_labels = y_test
 
     #################################1
     #    Lấy mẫu từ mô hình RBM     #
@@ -1056,46 +1076,70 @@ def test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=20, number_in
     return result
 if __name__ == '__main__':
 
-    print "Loading Data..."
+    # print and log
+    logger = util.log_util.create_logger("RBM_WEM", print_console=True)
+    print = logger.info
+
+    data_size = 0 # set datasize = 0 to run on full dataset
+
+    print ("Loading Data...")
     # Load dữ liệu
     data, labels, pos_neg_labels = LoadData(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Output_FSA)
 
-    print "Normalize Data..."
+
     # Chuẩn hóa reviews: lower case, tách từ, loại bỏ stopword, không cần bỏ thời gian để bỏ đi dấu chấm vì khi dùng thư viện
     # để tách từ nó sẽ tự động loại những cái đó ra
-    data = NormalizeData (data)
 
+    NORMALIZED_DATA_PATH = CONSTANT.DATASET_FOLDER_DIR + '/'+CONSTANT.normalize_data
+    if not (os.path.isfile(NORMALIZED_DATA_PATH)):
+        print("Normalize Data...")
+        data = NormalizeData (data)
+        pickle.dump(data, open(NORMALIZED_DATA_PATH,"w"))
+    else:
+        print("loag normalize data from %s" %(NORMALIZED_DATA_PATH))
+        data = pickle.load(open(NORMALIZED_DATA_PATH,"r"))
+
+    print("Load model")
     # Load model lên
     w2v_model = gensim.models.word2vec.Word2Vec.load(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Word2Vec_ENG_model)
 
     # print "Word2Vec phrase..."
-    data_vector = Word2Vec_aspect(data,labels,150, 100,w2v_model)
+    DATA_VECTOR_PATH = CONSTANT.DATASET_FOLDER_DIR + '/'+CONSTANT.data_vector
+    if not (os.path.isfile(DATA_VECTOR_PATH)):
+        print("Make data vector")
+        data_vector = Word2Vec_aspect(data,labels,data_size, 100,w2v_model)
+        pickle.dump(data_vector, open(DATA_VECTOR_PATH, "w"))
+    else:
+        print("Load from %s " %(DATA_VECTOR_PATH))
+
+    print('data size = %s' %(len(data_vector)))
 
     # Gợi ý phân lớp thông qua mô hình Word2Vec
-    print "Word2Vec Aspect Prediction Suggestion (50%)"
-    Word2Vec_classifier_1_inscript (w2v_model,data,150)
+    #print "Word2Vec Aspect Prediction Suggestion (50%)"
+    #Word2Vec_classifier_1_inscript (w2v_model,data,data_size)
 
+    # save file, un comment if needed
     # Do dữ liệu bự nên lưu thành file luôn
-    file_full_data = open('full_data_aspect_only_word2vec.txt','w')
-    for i in range(len(data_vector)):
-        for j in range(len(data_vector[i])):
-            file_full_data.write(str(data_vector[i][j]) + '\t')
-        file_full_data.write('\n')
+    #file_full_data = open('full_data_aspect_only_word2vec.txt','w')
+    #for i in range(len(data_vector)):
+    #    for j in range(len(data_vector[i])):
+    #        file_full_data.write(str(data_vector[i][j]) + '\t')
+    #    file_full_data.write('\n')
 
-    file_label = open('full_labels_aspect_only_word2vec.txt','w')
-    for i in range(len(labels)):
-        file_label.write(str(labels[i]) + '\n')
+    #file_label = open('full_labels_aspect_only_word2vec.txt','w')
+    #for i in range(len(labels)):
+    #    file_label.write(str(labels[i]) + '\n')
 
     result = []
 
-
+    print("start trainning RBM")
     for i in range(1):
         result.append(test_rbm(data_vector,labels,learning_rate=0.1, training_epochs=3, number_in_training_set = 150,
          batch_size=2000,aspect_size = 100, sentiment_size = 100,
          n_chains=20, n_samples=10, output_folder='rbm_plots',
          n_hidden=500))
-    print result
+    print (result)
 
-    file_result = open("result_RBM_Word2Vec_sentiment.txt",'w')
+    file_result = open("result_RBM_Word2Vec.txt",'w')
     for i in range(len(result)):
         file_result.write(str(result[i])+'\n')
