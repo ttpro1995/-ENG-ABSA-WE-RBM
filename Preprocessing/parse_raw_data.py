@@ -142,6 +142,10 @@ def parse_raw_corpus_to_xml(filename, neutral = False, conflict = False):
             if (POSITIVE+NEGATIVE+NEUTRAL+CONFLICT != 1):
                 continue
 
+            if (POSITIVE + NEGATIVE !=1):
+                "Must have one 1 these"
+                continue
+
             if (FOOD + STAFF + AMBIENCE + MISC + ANECDOTES + PRICE != 1):
                 "we only use sentences with a single label for evaluation to avoid ambiguity"
                 continue
@@ -182,7 +186,7 @@ def parse_raw_corpus_to_xml(filename, neutral = False, conflict = False):
             text_line = strip_tag(text_line)
             number_of_word = len(text_line.split())
             if (number_of_word>50):
-                # discard sentence with more than 50 words
+                "discard sentence with more than 50 words"
                 continue
 
             all_labels.append(label_aspect+label_sent)
@@ -295,12 +299,12 @@ if __name__ == "__main__":
     logger.info("Writing raw sentiment dataset")
     make_raw_sentiment_file(data, posnegs, CONSTANT.DATASET_FOLDER_DIR)
     logger.info("Writing raw aspect dataset")
-    data_size = make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)
+    make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)
     logger.info("training word2vec model")
     w2v.training_w2v_model()
     done_time = time.time()
     logger.info("Done in %f" %(done_time-start_time))
-    logger.info("Data size %s" %(data_size))
+    logger.info("Data size %d" %(len(data)))
 
     # run on short corpus
     # convert_to_lower_case('../dataset/short_corpus')
