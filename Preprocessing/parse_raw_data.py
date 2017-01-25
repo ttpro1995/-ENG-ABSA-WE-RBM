@@ -28,6 +28,8 @@ def make_raw_sentiment_file (data, pos_neg_labels, folder_dir):
         file_raw_data.write(sentence + '\n')
         file_raw_sentiment_labels.write(str(pos_neg_labels[i])  + '\n')
 
+    return len(data)
+
 
 def make_raw_aspect_file (data, aspect_labels, folder_dir):
     """
@@ -48,6 +50,8 @@ def make_raw_aspect_file (data, aspect_labels, folder_dir):
         sentence = sentence.lstrip() # remove all \n on left
         file_raw_data.write(sentence + '\n')
         file_raw_aspect_labels.write(str(aspect_labels[i])  + '\n')
+
+    return len(data)
 
 def strip_between(s, start = '>', end = '</'):
     """
@@ -106,6 +110,12 @@ def parse_raw_corpus_to_xml(filename, neutral = False, conflict = False):
             FOOD = 0
             STAFF = 0
             AMBIENCE = 0
+            # miscellaneous
+            MISC = 0
+            #anecdotes
+            ANECDOTES = 0
+            #price
+            PRICE = 0
 
             if ('<food>' in str(line)):
                 FOOD = 1
@@ -113,6 +123,12 @@ def parse_raw_corpus_to_xml(filename, neutral = False, conflict = False):
                 STAFF = 1
             if ('<ambience>' in str(line)):
                 AMBIENCE = 1
+            if ('<miscellaneous>' in str(line)):
+                MISC = 1
+            if ('<anecdotes>' in str(line)):
+                ANECDOTES = 1
+            if ('<price>' in str(line)):
+                PRICE = 1
 
             if ('<positive>' in str(line)):
                 POSITIVE = 1
@@ -126,8 +142,11 @@ def parse_raw_corpus_to_xml(filename, neutral = False, conflict = False):
             if (POSITIVE+NEGATIVE+NEUTRAL+CONFLICT != 1):
                 continue
 
-            if (FOOD + STAFF + AMBIENCE != 1):
+            if (FOOD + STAFF + AMBIENCE + MISC + ANECDOTES + PRICE != 1):
                 "we only use sentences with a single label for evaluation to avoid ambiguity"
+                continue
+            if (FOOD + STAFF + AMBIENCE != 1):
+                "Must have one 1 these"
                 continue
 
             #if (POSITIVE+NEGATIVE == 2):
@@ -161,6 +180,11 @@ def parse_raw_corpus_to_xml(filename, neutral = False, conflict = False):
 
             text_line = line.get_text()
             text_line = strip_tag(text_line)
+            number_of_word = len(text_line.split())
+            if (number_of_word>50):
+                # discard sentence with more than 50 words
+                continue
+
             all_labels.append(label_aspect+label_sent)
             all_review_lines.append(text_line)
 
@@ -271,11 +295,12 @@ if __name__ == "__main__":
     logger.info("Writing raw sentiment dataset")
     make_raw_sentiment_file(data, posnegs, CONSTANT.DATASET_FOLDER_DIR)
     logger.info("Writing raw aspect dataset")
-    make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)
+    data_size = make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)
     logger.info("training word2vec model")
     w2v.training_w2v_model()
     done_time = time.time()
     logger.info("Done in %f" %(done_time-start_time))
+    logger.info("Data size %s" %(data_size))
 
     # run on short corpus
     # convert_to_lower_case('../dataset/short_corpus')
