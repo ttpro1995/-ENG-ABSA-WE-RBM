@@ -693,6 +693,8 @@ def Word2Vec_aspect(data,labels,number_in_training_set, aspect_size,w2v_model):
 
     # Chuyển câu thành vector.........
     for i in range(len(data)):
+        if (i % 500 == 0):
+            print("w2v done %d sentences " %(i))
         # Khai báo vector cho 1 câu, số chiều mặc định là 300
         vector = numpy.zeros(300)
         words = data[i].split()
@@ -1111,6 +1113,7 @@ if __name__ == '__main__':
         pickle.dump(data_vector, open(DATA_VECTOR_PATH, "w"))
     else:
         print("Load from %s " %(DATA_VECTOR_PATH))
+        data_vector = pickle.load(open(DATA_VECTOR_PATH, "r"))
 
     print('data size = %s' %(len(data_vector)))
 
