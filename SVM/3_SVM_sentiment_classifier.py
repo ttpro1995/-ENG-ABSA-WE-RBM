@@ -258,6 +258,7 @@ if __name__ == "__main__":
     # create logger
     logger = util.log_util.create_logger("SVM_sentiment_classifier", print_console=True)
     print = logger.info # redirect print function to logger.info
+    print ('Language %s' %(CONSTANT.LANGUAGE))
 
     data, labels = LoadData(CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.full_sentiment_data_raw,
                             CONSTANT.DATASET_FOLDER_DIR+'/'+ CONSTANT.full_sentiment_labels_raw)

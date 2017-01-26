@@ -25,7 +25,7 @@ def make_raw_sentiment_file (data, pos_neg_labels, folder_dir):
     for i in range(len(data)):
         sentence = data[i].rstrip() # remove all \n on right
         sentence = sentence.lstrip() # remove all \n on left
-        file_raw_data.write(sentence + '\n')
+        file_raw_data.write(sentence.encode('utf8')+'\n')
         file_raw_sentiment_labels.write(str(pos_neg_labels[i])  + '\n')
 
     return len(data)
@@ -48,7 +48,7 @@ def make_raw_aspect_file (data, aspect_labels, folder_dir):
     for i in range(len(data)):
         sentence = data[i].rstrip() # remove all \n on right
         sentence = sentence.lstrip() # remove all \n on left
-        file_raw_data.write(sentence + '\n')
+        file_raw_data.write(sentence.encode('utf8')+'\n')
         file_raw_aspect_labels.write(str(aspect_labels[i])  + '\n')
 
     return len(data)
@@ -288,23 +288,42 @@ if __name__ == "__main__":
 
     # make logger
     logger = util.log_util.create_logger("parse_raw_data", print_console=True)
+    logger.info('Language : %s' %(CONSTANT.LANGUAGE))
+    print ("Change language in CONSTANT.py")
 
-    # run on real corpus
-    start_time = time.time()
-    logger.info("converting Corpus to lower case")
-    convert_to_lower_case(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus)
-    logger.info("parsing corpus to xml")
-    parse_raw_corpus_to_xml(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus_lower)
-    data, aspect_labels, posnegs = load_data_sentiment_aspect('../dataset/Output_FSA.txt')
-    logger.info("Writing raw sentiment dataset")
-    make_raw_sentiment_file(data, posnegs, CONSTANT.DATASET_FOLDER_DIR)
-    logger.info("Writing raw aspect dataset")
-    make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)
-    logger.info("training word2vec model")
-    w2v.training_w2v_model()
-    done_time = time.time()
-    logger.info("Done in %f" %(done_time-start_time))
-    logger.info("Data size %d" %(len(data)))
+    if (CONSTANT.LANGUAGE=='eng'):
+
+        # run on real corpus
+        start_time = time.time()
+        logger.info("converting Corpus to lower case")
+        convert_to_lower_case(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus)
+        logger.info("parsing corpus to xml")
+        parse_raw_corpus_to_xml(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Classified_Corpus_lower)
+        data, aspect_labels, posnegs = load_data_sentiment_aspect(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Output_FSA)
+        logger.info("Writing raw sentiment dataset")
+        make_raw_sentiment_file(data, posnegs, CONSTANT.DATASET_FOLDER_DIR)
+        logger.info("Writing raw aspect dataset")
+        make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)
+        logger.info("training word2vec model")
+        w2v.training_w2v_model()
+        done_time = time.time()
+        logger.info("Done in %f" %(done_time-start_time))
+        logger.info("Data size %d" %(len(data)))
+
+    elif (CONSTANT.LANGUAGE =='viet'):
+        # run on real corpus
+        start_time = time.time()
+        data, aspect_labels, posnegs = load_data_sentiment_aspect(CONSTANT.DATASET_FOLDER_DIR+'/'+CONSTANT.Output_FSA)
+        logger.info("Writing raw sentiment dataset")
+        make_raw_sentiment_file(data, posnegs, CONSTANT.DATASET_FOLDER_DIR)
+        logger.info("Writing raw aspect dataset")
+        make_raw_aspect_file(data, aspect_labels, CONSTANT.DATASET_FOLDER_DIR)
+        logger.info("training word2vec model")
+        w2v.training_w2v_model()
+        done_time = time.time()
+        logger.info("Done in %f" %(done_time-start_time))
+        logger.info("Data size %d" %(len(data)))
+
 
     # run on short corpus
     # convert_to_lower_case('../dataset/short_corpus')

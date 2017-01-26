@@ -179,6 +179,7 @@ if __name__ == "__main__":
     # create logger
     logger = util.log_util.create_logger("SVM_aspect_classifier", print_console=True)
     print = logger.info # redirect print function to logger.info
+    print ('Language %s' %(CONSTANT.LANGUAGE))
 
     # Define
     data_size = 0 # set data_size = 0 to train on all data
